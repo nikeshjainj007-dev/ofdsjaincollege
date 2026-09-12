@@ -1,0 +1,543 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>OFDS JAINITES | Campus Food Delivery (Cash on Delivery)</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="style.css?v=2.1">
+  <link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220%22%3E<text y=%2226%22 font-size=%2224%22>🍔</text></svg>">
+</head>
+<body>
+
+  <!-- Top Announcement Bar -->
+  <aside class="top-ticker" aria-label="Campus Announcement">
+    <div class="container ticker-content">
+      <span>🚀 <strong>Campus Food Delivery Active</strong>: Hot food delivered directly to Hostels, Library & Classrooms in 15 mins!</span>
+      <span class="ticker-tag">💵 <strong>100% Cash on Delivery (COD)</strong> • Pay upon arrival</span>
+    </div>
+  </aside>
+
+  <!-- Main Navigation Header -->
+  <header class="site-header">
+    <div class="container nav-container">
+      
+      <!-- Brand Logo -->
+      <div class="brand" onclick="app.switchRole('student'); app.resetView();">
+        <div class="brand-badge">OFDS</div>
+        <div class="brand-text">
+          <span class="brand-title">JAINITES</span>
+          <span class="brand-sub">Campus Food Hub</span>
+        </div>
+      </div>
+
+      <!-- Prominent Role Navigation Tabs -->
+      <nav class="nav-role-tabs" aria-label="Role Navigation">
+        <button class="role-tab-btn active" id="tabStudent" onclick="app.switchRole('student')">
+          <span>🎓</span> Student Portal
+        </button>
+        <button class="role-tab-btn" id="tabVendor" onclick="app.switchRole('vendor')">
+          <span>👨‍🍳</span> Vendor / Kitchen KDS
+          <span class="nav-alert-dot" id="navVendorAlert"></span>
+        </button>
+        <button class="role-tab-btn" id="tabRunner" onclick="app.switchRole('runner')">
+          <span>🚴</span> Runner Portal
+        </button>
+      </nav>
+
+      <!-- Campus Location Selector -->
+      <div class="location-pill" id="headerLocationPill" onclick="app.openLocationModal()">
+        <span class="loc-icon">📍</span>
+        <div class="loc-text">
+          <span class="loc-label">DELIVER TO</span>
+          <span class="loc-current" id="currentLocationDisplay">Boys Hostel Block 1, Room 204</span>
+        </div>
+        <span class="chevron">▼</span>
+      </div>
+
+      <!-- Search Input -->
+      <div class="search-bar" id="headerSearchBar">
+        <span class="search-icon">🔍</span>
+        <input type="text" id="globalSearchInput" placeholder="Search dishes, maggi, thali, jain..." oninput="app.handleSearch(this.value)">
+        <button class="clear-btn" id="clearSearchBtn" onclick="app.clearSearch()" style="display: none;">✕</button>
+      </div>
+
+      <!-- Header Controls: Orders & Cart -->
+      <div class="header-actions">
+        <!-- Orders Button -->
+        <button class="btn btn-outline nav-orders-btn" onclick="app.openOrdersModal()">
+          <span>📋</span> <span class="btn-text">My Orders</span>
+        </button>
+
+        <!-- Cart Trigger -->
+        <button class="cart-trigger-btn" onclick="app.toggleCart(true)" id="cartButton">
+          <span class="cart-icon">🛒</span>
+          <span class="cart-label">Cart</span>
+          <span class="cart-count-badge" id="cartCountBadge">0</span>
+        </button>
+      </div>
+
+    </div>
+  </header>
+
+  <!-- Sticky Live Active Order Banner (Shown when student has an active order) -->
+  <div class="active-order-banner" id="studentActiveOrderBanner" style="display: none;">
+    <div class="container active-banner-inner">
+      <div class="banner-status-info">
+        <span class="pulse-indicator"></span>
+        <span>Active Campus Order <strong id="activeBannerOrderNo">#ORD-00000</strong>: <span class="badge-status status-preparing" id="activeBannerStatus">Cooking in Kitchen 🍳</span></span>
+        <span class="banner-cod-note">💵 Cash on Delivery: <strong id="activeBannerAmount">₹0.00</strong></span>
+      </div>
+      <button class="btn btn-sm btn-primary" onclick="app.openTrackerModal(null)">
+        Track Live Status ➔
+      </button>
+    </div>
+  </div>
+
+  <!-- MAIN APP VIEWS CONTAINER -->
+  <main id="mainContent">
+
+    <!-- ==================== VIEW 1: STUDENT STOREFRONT ==================== -->
+    <section id="studentView" class="active-view">
+      
+      <!-- Hero Campus Showcase -->
+      <section class="hero-section">
+        <div class="container hero-grid">
+          <div class="hero-card hero-primary">
+            <div class="hero-tag">🌟 CAMPUS FOOD DELIVERY</div>
+            <h2>Skip the Mess Queue. Order Hot Food Anywhere on Campus!</h2>
+            <p>From late-night study cravings to quick lunch breaks between classes, get instant delivery to your hostel room or self-pickup in 10 minutes.</p>
+            <div class="hero-perks">
+              <div class="perk-item"><span>⚡</span> 15-Min Campus Delivery</div>
+              <div class="perk-item"><span>🌿</span> 100% Jain & Pure Veg Options</div>
+              <div class="perk-item"><span>💵</span> Only Cash on Delivery (COD)</div>
+            </div>
+          </div>
+
+          <div class="hero-card hero-banner-mini">
+            <div class="mini-banner-content">
+              <span class="badge-accent">🌙 NIGHT HUB ACTIVE</span>
+              <h3>Midnight Cravings?</h3>
+              <p>Night Owl Canteen is open till 2:00 AM for cheesy wraps, loaded fries & cold coffee!</p>
+              <button class="btn btn-sm btn-white" onclick="app.filterByOutlet(5)">Order Night Snacks →</button>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- Quick Dietary & Category Filters -->
+      <section class="filters-bar-section">
+        <div class="container">
+          <div class="filter-chips-wrapper">
+            <button class="chip active" onclick="app.setDietFilter('all')">🍽️ All Food</button>
+            <button class="chip" onclick="app.setDietFilter('veg')">🌱 Pure Veg</button>
+            <button class="chip chip-jain" onclick="app.setDietFilter('jain')">🌿 Jain Special (No Onion/Garlic)</button>
+            <button class="chip" onclick="app.setDietFilter('bestseller')">🔥 Campus Bestsellers</button>
+            <button class="chip" onclick="app.setDietFilter('budget')">💰 Under ₹70</button>
+            <button class="chip" onclick="app.setDietFilter('spicy')">🌶️ Spicy Picks</button>
+          </div>
+        </div>
+      </section>
+
+      <!-- Campus Canteens & Outlets Section -->
+      <section class="section outlets-section" id="outletsSection">
+        <div class="container">
+          <div class="section-header">
+            <div>
+              <h2 class="section-title">Campus Canteens & Outlets</h2>
+              <p class="section-subtitle">Pick from your favorite food joints across Jainites campus</p>
+            </div>
+            <div class="outlets-tabs">
+              <button class="outlet-filter-pill active" onclick="app.filterByOutlet(null)">Show All Canteens (6)</button>
+            </div>
+          </div>
+
+          <div class="outlets-grid" id="outletsGrid">
+            <!-- Rendered by app.js -->
+          </div>
+        </div>
+      </section>
+
+      <!-- Menu Items Section -->
+      <section class="section menu-section" id="menuSection">
+        <div class="container">
+          <div class="section-header menu-header">
+            <div>
+              <h2 class="section-title" id="menuTitle">Popular Campus Dishes</h2>
+              <p class="section-subtitle" id="menuSubtitle">Handcrafted meals, quick snacks, hot Maggi and refreshing beverages</p>
+            </div>
+            
+            <div class="category-scroll-nav" id="categoryNav">
+              <!-- Rendered by app.js -->
+            </div>
+          </div>
+
+          <!-- Dishes Grid -->
+          <div class="dishes-grid" id="dishesGrid">
+            <!-- Rendered by app.js -->
+          </div>
+
+        </div>
+      </section>
+
+    </section>
+
+    <!-- ==================== VIEW 2: KITCHEN DISPLAY SYSTEM (KDS / VENDOR) ==================== -->
+    <section id="vendorView" class="view-panel" style="display: none;">
+      <div class="container">
+        <div class="vendor-header">
+          <div>
+            <span class="role-badge">Canteen Staff & Kitchen KDS</span>
+            <h2>Live Kitchen Orders & Menu Stock</h2>
+            <p>Real-time campus order tickets. Accept orders, start cooking, and mark completed when cash is collected.</p>
+          </div>
+          <div class="kds-filter-controls">
+            <label style="font-size:0.85rem; font-weight:700; color:var(--text-secondary);">Select Canteen:</label>
+            <select id="kdsOutletSelect" onchange="app.renderKdsOrders()">
+              <option value="all">All Campus Canteens</option>
+              <option value="1">Central Food Court</option>
+              <option value="2">South Express Tiffin</option>
+              <option value="3">Chai & Maggi Hub</option>
+              <option value="4">Jain Zaika (Pure Veg & Jain)</option>
+              <option value="5">Night Owl Canteen</option>
+              <option value="6">Juice Junction & Shakes</option>
+            </select>
+            <button class="btn btn-sm btn-outline" onclick="app.refreshAllData()">🔄 Refresh Queue</button>
+          </div>
+        </div>
+
+        <!-- Vendor Metric Cards -->
+        <div class="stats-row" id="vendorStats">
+          <!-- Rendered by app.js -->
+        </div>
+
+        <!-- Kitchen Board 4 Columns -->
+        <div class="kds-board">
+          <!-- Column 1: Incoming Pending Orders -->
+          <div class="kds-col">
+            <div class="kds-col-header bg-yellow">
+              <span>🔔 Incoming / Pending</span>
+              <span class="kds-badge" id="pendingCount">0</span>
+            </div>
+            <div class="kds-cards" id="kdsPendingList"></div>
+          </div>
+
+          <!-- Column 2: Cooking in Kitchen -->
+          <div class="kds-col">
+            <div class="kds-col-header bg-blue">
+              <span>🍳 Preparing in Kitchen</span>
+              <span class="kds-badge" id="preparingCount">0</span>
+            </div>
+            <div class="kds-cards" id="kdsPreparingList"></div>
+          </div>
+
+          <!-- Column 3: Ready for Pickup / Runner -->
+          <div class="kds-col">
+            <div class="kds-col-header bg-purple">
+              <span>🚴 Ready / Dispatch</span>
+              <span class="kds-badge" id="readyCount">0</span>
+            </div>
+            <div class="kds-cards" id="kdsReadyList"></div>
+          </div>
+
+          <!-- Column 4: Delivered & Cash Collected -->
+          <div class="kds-col">
+            <div class="kds-col-header bg-green">
+              <span>🎉 Delivered & Paid</span>
+              <span class="kds-badge" id="deliveredCount">0</span>
+            </div>
+            <div class="kds-cards" id="kdsDeliveredList"></div>
+          </div>
+        </div>
+
+        <!-- Live Stock Control Table -->
+        <div class="stock-control-panel">
+          <div class="section-header">
+            <div>
+              <h3>Menu Item In-Stock / Sold-Out Toggles</h3>
+              <p>Instantly prevent students from ordering dishes that ran out of ingredients.</p>
+            </div>
+          </div>
+          <div class="stock-table-wrapper" id="stockTableContainer">
+            <!-- Rendered by app.js -->
+          </div>
+        </div>
+
+      </div>
+    </section>
+
+    <!-- ==================== VIEW 3: DELIVERY RUNNER PORTAL ==================== -->
+    <section id="runnerView" class="view-panel" style="display: none;">
+      <div class="container">
+        <div class="vendor-header">
+          <div>
+            <span class="role-badge runner-badge">Campus Delivery Fleet</span>
+            <h2>Hostel & Academic Delivery Dashboard</h2>
+            <p>Pick up orders from canteens, deliver to student rooms, collect Cash on Delivery, and verify handover.</p>
+          </div>
+          <button class="btn btn-sm btn-outline" onclick="app.refreshAllData()">🔄 Refresh Deliveries</button>
+        </div>
+
+        <div class="runner-orders-grid" id="runnerOrdersList">
+          <!-- Rendered by app.js -->
+        </div>
+      </div>
+    </section>
+
+  </main>
+
+  <!-- ==================== SLIDE-OVER CART DRAWER ==================== -->
+  <div class="cart-backdrop" id="cartBackdrop" onclick="app.toggleCart(false)"></div>
+  <aside class="cart-drawer" id="cartDrawer">
+    <div class="cart-header">
+      <div class="cart-title-wrap">
+        <h3>Your Campus Food Tray</h3>
+        <span class="cart-items-info" id="cartItemsSubtitle">0 items</span>
+      </div>
+      <button class="btn-close" onclick="app.toggleCart(false)">✕</button>
+    </div>
+
+    <!-- Delivery Type Selection -->
+    <div class="delivery-toggle-wrap">
+      <button class="btn-toggle active" id="btnTypeDelivery" onclick="app.setDeliveryType('delivery')">
+        🚴 Hostel / Room Delivery
+      </button>
+      <button class="btn-toggle" id="btnTypePickup" onclick="app.setDeliveryType('pickup')">
+        🏃 Counter Pickup (Skip Line)
+      </button>
+    </div>
+
+    <!-- Empty State -->
+    <div class="cart-empty-state" id="cartEmptyState">
+      <div class="empty-icon">🍱</div>
+      <h4>Your tray is empty</h4>
+      <p>Explore our campus canteens and add tasty rolls, maggi, thalis or cold coffee to your order!</p>
+      <button class="btn btn-primary" onclick="app.toggleCart(false)">Browse Menu</button>
+    </div>
+
+    <!-- Populated Cart Items -->
+    <div class="cart-body" id="cartItemsContainer" style="display: none;">
+      <div class="cart-outlet-banner" id="cartOutletNotice">
+        <span>From: <strong id="cartOutletName">Central Food Court</strong></span>
+      </div>
+
+      <div class="cart-items-list" id="cartItemsList">
+        <!-- Rendered by app.js -->
+      </div>
+
+      <!-- Campus Location Summary in Cart -->
+      <div class="cart-delivery-loc-box" id="cartLocBox">
+        <div class="box-head">
+          <span>📍 Delivery Spot</span>
+          <button class="btn-link" onclick="app.openLocationModal()">Change</button>
+        </div>
+        <p id="cartLocSummary">Boys Hostel Block 1, Room 204</p>
+      </div>
+
+      <!-- Coupon Code Section -->
+      <div class="coupon-box">
+        <div class="coupon-input-row">
+          <input type="text" id="couponInput" placeholder="Enter coupon (e.g. CAMPUS50)">
+          <button class="btn btn-sm btn-primary" onclick="app.applyCoupon()">Apply</button>
+        </div>
+        <div class="coupon-feedback" id="couponFeedback"></div>
+        <div class="quick-coupons">
+          <span class="quick-code" onclick="app.fillCoupon('CAMPUS50')">CAMPUS50</span>
+          <span class="quick-code" onclick="app.fillCoupon('FIRSTJAINITE')">FIRSTJAINITE</span>
+          <span class="quick-code" onclick="app.fillCoupon('NIGHTOWL')">NIGHTOWL</span>
+        </div>
+      </div>
+
+      <!-- Bill Breakdown -->
+      <div class="bill-summary">
+        <div class="bill-row">
+          <span>Subtotal</span>
+          <span id="billSubtotal">₹0.00</span>
+        </div>
+        <div class="bill-row bill-discount" id="billDiscountRow" style="display: none;">
+          <span>Student Discount</span>
+          <span id="billDiscount">-₹0.00</span>
+        </div>
+        <div class="bill-row">
+          <span>Campus Runner / Handling Fee</span>
+          <span id="billDeliveryFee">₹10.00</span>
+        </div>
+        <div class="bill-row grand-total">
+          <span>Cash on Delivery Total</span>
+          <span id="billGrandTotal">₹0.00</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- Cart Footer Actions -->
+    <div class="cart-footer" id="cartFooter" style="display: none;">
+      <button class="btn btn-primary btn-checkout" onclick="app.openCheckoutModal()">
+        <span>Proceed to Checkout</span>
+        <span id="checkoutBtnAmount">₹0.00 →</span>
+      </button>
+    </div>
+  </aside>
+
+  <!-- ==================== LOCATION SELECTION MODAL ==================== -->
+  <div class="modal-backdrop" id="locationModal">
+    <div class="modal-dialog">
+      <div class="modal-header">
+        <h3>📍 Select Campus Delivery Spot</h3>
+        <button class="btn-close" onclick="app.closeModal('locationModal')">✕</button>
+      </div>
+      <div class="modal-body">
+        <label class="form-label">Campus Zone / Block</label>
+        <select id="locBlockSelect" class="form-select" onchange="app.handleBlockChange(this.value)">
+          <option value="Boys Hostel Block 1">Boys Hostel Block 1 (Rooms 101 - 420)</option>
+          <option value="Boys Hostel Block 2">Boys Hostel Block 2 (Rooms 101 - 315)</option>
+          <option value="Girls Hostel Block A">Girls Hostel Block A (Rooms 101 - 410)</option>
+          <option value="Girls Hostel Block B">Girls Hostel Block B (Rooms 101 - 320)</option>
+          <option value="Academic Block A Ground Floor">Academic Block A - Ground Hallway</option>
+          <option value="Academic Block B - Dept of Tech">Academic Block B - Tech Park Steps</option>
+          <option value="Campus Central Library">Central Library - 2nd Floor Study Lounge</option>
+          <option value="Amphitheater Lawn">Open Amphitheater Lawn Side</option>
+          <option value="Sports Complex">Sports Pavilion & Football Ground</option>
+        </select>
+
+        <div class="form-group" id="roomGroup">
+          <label class="form-label">Hostel Room Number / Bench Landmark</label>
+          <input type="text" id="locRoomInput" class="form-input" placeholder="e.g. Room 204 or Bench 12" value="Room 204">
+        </div>
+      </div>
+      <div class="modal-footer">
+        <button class="btn btn-outline" onclick="app.closeModal('locationModal')">Cancel</button>
+        <button class="btn btn-primary" onclick="app.saveLocation()">Confirm Spot</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- ==================== CHECKOUT MODAL (STRICTLY CASH ON DELIVERY) ==================== -->
+  <div class="modal-backdrop" id="checkoutModal">
+    <div class="modal-dialog modal-lg">
+      <div class="modal-header">
+        <h3>Finalize Campus Order</h3>
+        <button class="btn-close" onclick="app.closeModal('checkoutModal')">✕</button>
+      </div>
+      <div class="modal-body">
+        <div class="checkout-grid">
+          
+          <!-- Contact Info -->
+          <div class="checkout-col">
+            <h4 class="form-section-title">👤 Student Information</h4>
+            <div class="form-group">
+              <label class="form-label">Full Name</label>
+              <input type="text" id="checkoutStudentName" class="form-input" placeholder="e.g. Aryan Jain" value="Aryan Jain">
+            </div>
+            <div class="form-group">
+              <label class="form-label">Phone Number (for Delivery Runner Call)</label>
+              <input type="tel" id="checkoutStudentPhone" class="form-input" placeholder="+91 98765 43210" value="+91 98765 43210">
+            </div>
+
+            <h4 class="form-section-title" style="margin-top: 20px;">📍 Delivery Location</h4>
+            <div class="checkout-loc-preview">
+              <span id="checkoutLocText">Boys Hostel Block 1, Room 204</span>
+              <button class="btn-link" onclick="app.openLocationModal()">Edit</button>
+            </div>
+          </div>
+
+          <!-- Payment Options: 100% Cash on Delivery -->
+          <div class="checkout-col">
+            <h4 class="form-section-title">💳 Payment Gateway</h4>
+            
+            <div class="cod-box-selected">
+              <div class="cod-box-top">
+                <span class="cod-symbol">💵</span>
+                <div>
+                  <strong class="cod-name">Cash on Delivery (COD)</strong>
+                  <span class="cod-tag">Only Payment Mode</span>
+                </div>
+                <span class="cod-checkmark">✓</span>
+              </div>
+              <p class="cod-instruction">
+                Pay in cash directly to the runner when your food is handed over at your hostel room or canteen counter.
+              </p>
+              <div class="cod-benefits">
+                <span>✓ 0% transaction fees or payment failures</span>
+                <span>✓ Pay only when your hot food arrives</span>
+                <span>✓ Exact cash change is appreciated!</span>
+              </div>
+            </div>
+            <input type="hidden" id="payMethodInput" name="payMethod" value="cod">
+            <input type="radio" name="payMethod" value="cod" checked style="display:none">
+
+            <!-- Total Amount Review -->
+            <div class="checkout-total-box">
+              <span>Cash to Pay on Handover</span>
+              <strong id="checkoutFinalAmount">₹0.00</strong>
+            </div>
+
+          </div>
+
+        </div>
+      </div>
+      <div class="modal-footer">
+        <button class="btn btn-outline" onclick="app.closeModal('checkoutModal')">Back to Cart</button>
+        <button class="btn btn-primary btn-lg" id="btnPlaceOrder" onclick="app.submitOrder()">
+          <span>Confirm & Place Order (Cash on Delivery) 🚀</span>
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- ==================== LIVE ORDER TRACKING MODAL ==================== -->
+  <div class="modal-backdrop" id="trackerModal">
+    <div class="modal-dialog modal-lg">
+      <div class="modal-header">
+        <div class="tracker-title-wrap">
+          <span class="live-pulse"></span>
+          <h3>Live Campus Order Tracker</h3>
+        </div>
+        <button class="btn-close" onclick="app.closeModal('trackerModal')">✕</button>
+      </div>
+      <div class="modal-body" id="trackerModalContent">
+        <!-- Rendered by app.js -->
+      </div>
+      <div class="modal-footer">
+        <button class="btn btn-outline" onclick="app.closeModal('trackerModal')">Close Tracker</button>
+        <button class="btn btn-primary" onclick="app.refreshCurrentTracking()">🔄 Refresh Status</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- ==================== STUDENT ORDERS HISTORY MODAL ==================== -->
+  <div class="modal-backdrop" id="ordersModal">
+    <div class="modal-dialog modal-lg">
+      <div class="modal-header">
+        <h3>📋 My Campus Order History</h3>
+        <button class="btn-close" onclick="app.closeModal('ordersModal')">✕</button>
+      </div>
+      <div class="modal-body">
+        <div class="orders-list" id="studentOrdersList">
+          <!-- Rendered by app.js -->
+        </div>
+      </div>
+      <div class="modal-footer">
+        <button class="btn btn-primary" onclick="app.closeModal('ordersModal')">Close</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Toast Notification Container -->
+  <div id="toastContainer" class="toast-container" aria-live="polite"></div>
+
+  <!-- Floating Mobile Cart Bar -->
+  <div class="mobile-cart-bar" id="mobileCartBar" onclick="app.toggleCart(true)">
+    <div class="mobile-cart-left">
+      <span class="cart-pill-count" id="mobileCartCount">0 items</span>
+      <span class="mobile-cart-total" id="mobileCartTotal">₹0.00</span>
+    </div>
+    <div class="mobile-cart-right">
+      <span>View Cart 🛒 →</span>
+    </div>
+  </div>
+
+  <script src="app.js?v=2.1"></script>
+</body>
+</html>
