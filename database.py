@@ -1,9 +1,16 @@
 import sqlite3
 import os
 import json
+import shutil
 from datetime import datetime
 
-DB_PATH = os.path.join(os.path.dirname(__file__), "campus_food.db")
+SOURCE_DB_PATH = os.path.join(os.path.dirname(__file__), "campus_food.db")
+DB_PATH = os.environ.get("OFDS_DB_PATH", SOURCE_DB_PATH)
+
+if os.environ.get("VERCEL") and DB_PATH == SOURCE_DB_PATH:
+    DB_PATH = "/tmp/campus_food.db"
+    if not os.path.exists(DB_PATH) and os.path.exists(SOURCE_DB_PATH):
+        shutil.copyfile(SOURCE_DB_PATH, DB_PATH)
 
 def get_db_connection():
     conn = sqlite3.connect(DB_PATH)
