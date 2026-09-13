@@ -365,11 +365,14 @@ def get_stats():
     }
 
 # --- Mount Static Files ---
-static_dir = os.path.join(os.path.dirname(__file__), "static")
-if not os.path.exists(static_dir):
-    os.makedirs(static_dir)
-
-app.mount("/", StaticFiles(directory=static_dir, html=True), name="static")
+# On Vercel, static files are served directly by the CDN via vercel.json routes.
+# Mounting StaticFiles at "/" here would intercept API routes in serverless mode.
+# Only mount locally where we need uvicorn to serve the frontend too.
+if not os.environ.get("VERCEL"):
+    static_dir = os.path.join(os.path.dirname(__file__), "static")
+    if not os.path.exists(static_dir):
+        os.makedirs(static_dir)
+    app.mount("/", StaticFiles(directory=static_dir, html=True), name="static")
 
 if __name__ == "__main__":
     import uvicorn
